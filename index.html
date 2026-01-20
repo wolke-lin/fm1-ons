@@ -1,96 +1,122 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Countdown</title>
-
 <style>
-  body {
-    margin: 0;
-    background-color: #CDE1EB;
-    font-family: Arial, sans-serif;
+  :root{
+    --bg:#CDE1EB;
+    --gold:#FFC000;
+    --light:#F7F7F7;
+    --text:#183A68;
   }
 
-  #countdown-wrapper {
-    padding: 20px;
-    display: inline-block;
+  /* 整體背景與版心 */
+  body{
+    margin:0;
+    background-color:var(--bg);
+    font-family: Arial, Helvetica, sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
 
-  .countdown-main {
-    display: flex;
-    align-items: flex-start;
-    margin-left: -11px; /* 0.3cm */
+  /* 容器寬度跟內容一致，利於 SharePoint 內嵌 */
+  .container{
+    width: max-content;
   }
 
-  #days-number {
-    font-size: 70px;
-    color: #FFC000;
-    font-weight: bold;
-    line-height: 1;
+  /* 主體：用 grid 精準排版 */
+  .wrap{
+    display:grid;
+    grid-template-columns:auto auto;   /* 左：數字；右：標籤 */
+    column-gap:0.5cm;                  /* 與主倒數數字右邊 0.5cm */
+    align-items:start;
+    margin-left:0.3cm;                 /* 與補充說明文字左邊凸排 0.3cm */
   }
 
-  .days-text {
-    margin-left: 19px; /* 0.5cm */
-    margin-top: 4px;   /* 0.1cm */
+  /* 主倒數數字 */
+  #days-number{
+    font-size:70px;                    /* 規格：70px */
+    line-height:1;
+    font-weight:700;
+    color:var(--gold);
   }
 
-  .days {
-    font-size: 28px;
-    color: #FFC000;
-    line-height: 1.1;
+  /* 右側兩行標籤：垂直堆疊，整體上移 0.1cm */
+  .labels{
+    display:flex;
+    flex-direction:column;
+    transform:translateY(-0.1cm);      /* DAYS 在主數字上方 0.1cm */
   }
 
-  .to-go {
-    font-size: 28px;
-    color: #F7F7F7;
-    margin-top: 11px; /* 0.3cm */
-    line-height: 1.1;
+  /* DAYS / TO GO 共用樣式 */
+  .label{
+    font-size:28px;                    /* 規格：28px */
+    line-height:1;
+    text-align:center;                  /* 讓 TO GO 與 DAYS 中線對齊 */
+    white-space:nowrap;
+  }
+  #days-label{ color:var(--gold); }
+  #to-go     { color:var(--light); margin-top:0.3cm; } /* 與 DAYS 距離 0.3cm */
+
+  /* 補充說明文字（單行） */
+  .subtext{
+    margin-top:15px;                   /* 約 0.4cm */
+    color:var(--text);
+    font-size:16px;
+    text-align:center;
   }
 
-  .desc {
-    font-size: 16px;
-    color: #183A68;
-  }
-
-  .desc-1 {
-    margin-top: 15px; /* 0.4cm */
-  }
-
-  .desc-2 {
-    margin-top: 26px; /* 0.7cm */
+  /* 小螢幕調整（可選） */
+  @media (max-width:420px){
+    #days-number{ font-size:56px; }
+    .label{ font-size:24px; }
   }
 </style>
 </head>
-
 <body>
-  <div id="countdown-wrapper">
-    <div class="countdown-main">
+  <div class="container">
+    <div class="wrap" aria-label="Days countdown">
       <div id="days-number">0</div>
-
-      <div class="days-text">
-        <div class="days">DAYS</div>
-        <div class="to-go">TO GO</div>
+      <div class="labels">
+        <div id="days-label" class="label">DAYS</div>
+        <div id="to-go" class="label">TO GO</div>
       </div>
     </div>
 
-    <div class="desc desc-1">  We're counting down to</div>
-    <div class="desc desc-2">Onshore substation energized</div>
+    <div class="subtext" id="subtitle">
+      We're counting down to Onshore substation energized
+    </div>
   </div>
 
 <script>
-  function updateCountdown() {
-    const targetDate = new Date("2026-08-15T00:00:00");
-    const today = new Date();
-    const diffTime = targetDate - today;
-    const diffDays = Math.max(
-      Math.ceil(diffTime / (1000 * 60 * 60 * 24)),
-      0
-    );
-    document.getElementById("days-number").textContent = diffDays;
+  /**
+   * 目標：台灣時間（Asia/Taipei，UTC+8）2026-08-15 00:00
+   * 將其換算成 UTC 時刻：2026-08-14 16:00:00Z
+   * 使用 UTC 時戳做差，保證不受瀏覽者電腦時區影響。
+   * 注意：Date.UTC 的 monthIndex 從 0 開始，所以 8 月要填 7。
+   */
+  const TARGET_TAIPEI_UTC = Date.UTC(2026, 7, 14, 16, 0, 0);
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+  function updateCountdown(){
+    const nowUTC = Date.now();                 // 目前 UTC 毫秒時間戳
+    let diff = TARGET_TAIPEI_UTC - nowUTC;
+
+    // 只顯示整數天數；若已過期則顯示 0
+    let days = Math.floor(diff / MS_PER_DAY);
+    if (days < 0) days = 0;
+
+    document.getElementById("days-number").textContent = days;
   }
 
+  // 立即更新一次，之後每小時更新即可
   updateCountdown();
-  setInterval(updateCountdown, 3600000); // hourly update
+  setInterval(updateCountdown, 60 * 60 * 1000);
 </script>
 </body>
 </html>
