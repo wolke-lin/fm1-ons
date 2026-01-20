@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Countdown</title>
+
+<style>
+  body {
+    margin: 0;
+    background-color: #CDE1EB;
+    font-family: Arial, sans-serif;
+  }
+
+  #countdown-wrapper {
+    padding: 20px;
+    display: inline-block;
+  }
+
+  .countdown-main {
+    display: flex;
+    align-items: flex-start;
+    margin-left: -11px; /* 0.3cm */
+  }
+
+  #days-number {
+    font-size: 70px;
+    color: #FFC000;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .days-text {
+    margin-left: 19px; /* 0.5cm */
+    margin-top: 4px;   /* 0.1cm */
+  }
+
+  .days {
+    font-size: 28px;
+    color: #FFC000;
+    line-height: 1.1;
+  }
+
+  .to-go {
+    font-size: 28px;
+    color: #F7F7F7;
+    margin-top: 11px; /* 0.3cm */
+    line-height: 1.1;
+  }
+
+  .desc {
+    font-size: 16px;
+    color: #183A68;
+  }
+
+  .desc-1 {
+    margin-top: 15px; /* 0.4cm */
+  }
+
+  .desc-2 {
+    margin-top: 26px; /* 0.7cm */
+  }
+</style>
+</head>
+
+<body>
+  <div id="countdown-wrapper">
+    <div class="countdown-main">
+      <div id="days-number">0</div>
+
+      <div class="days-text">
+        <div class="days">DAYS</div>
+        <div class="to-go">TO GO</div>
+      </div>
+    </div>
+
+    <div class="desc desc-1">  We're counting down to</div>
+    <div class="desc desc-2">Onshore substation energized</div>
+  </div>
+
+<script>
+  function updateCountdown() {
+    const targetDate = new Date("2026-08-15T00:00:00");
+    const today = new Date();
+    const diffTime = targetDate - today;
+    const diffDays = Math.max(
+      Math.ceil(diffTime / (1000 * 60 * 60 * 24)),
+      0
+    );
+    document.getElementById("days-number").textContent = diffDays;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 3600000); // hourly update
+</script>
+</body>
+</html>
